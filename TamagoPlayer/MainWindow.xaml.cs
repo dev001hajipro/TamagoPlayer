@@ -69,12 +69,12 @@ namespace TamagoPlayer
             {
                 // 戻るボタン
                 Console.WriteLine("xbutton1");
-                player.Position += new TimeSpan(0, 0, -1, 0);// 1秒戻る
+                player.Position += new TimeSpan(0, 0, 0, 0, -500);// 1秒戻る
             }
             else if (e.XButton2 == MouseButtonState.Pressed)
             {
                 // 進むボタン
-                player.Position += new TimeSpan(0, 0, 1, 0);
+                player.Position += new TimeSpan(0, 0, 0, 0, 500);
             }
             else if (status == Status.Playing)
             {
@@ -85,6 +85,55 @@ namespace TamagoPlayer
             {
                 player.Play();
                 status = Status.Playing;
+            }
+        }
+
+        private void OnKeyDown(object sender, KeyEventArgs e)
+        {
+            Console.WriteLine("OnKeyDown.");
+            if (e.Key == Key.Left)
+            {
+                player.Position += new TimeSpan(0, 0, 0, -10); // 10秒
+            }
+            else if (e.Key == Key.Right)
+            {
+                player.Position += new TimeSpan(0, 0, 0, 10);
+            }
+            else if (e.Key == Key.Space)
+            {
+                Console.WriteLine("screenshot.");
+                // Render to bitmap.
+                var bitmap = new RenderTargetBitmap((int)player.RenderSize.Width, (int)player.RenderSize.Height, 96, 96, PixelFormats.Pbgra32);
+                VisualBrush visualBrush = new VisualBrush(player);
+
+                DrawingVisual drawingVisual = new DrawingVisual();
+                DrawingContext drawingContext = drawingVisual.RenderOpen();
+                using (drawingContext)
+                {
+                    drawingContext.PushTransform(new ScaleTransform(1.0, 1.0));
+                    drawingContext.DrawRectangle(visualBrush, null, new Rect(0, 0, player.RenderSize.Width, player.RenderSize.Height));
+                }
+                bitmap.Render(drawingVisual);
+
+                // make jpeg binary data.
+                JpegBitmapEncoder jpegBitmapEncoder = new JpegBitmapEncoder();
+                jpegBitmapEncoder.QualityLevel = 90;
+                jpegBitmapEncoder.Frames.Add(BitmapFrame.Create(bitmap));
+
+                byte[] data;
+                using (var os = new MemoryStream())
+                {
+                    jpegBitmapEncoder.Save(os);
+                    data = os.ToArray();
+                }
+                // write to file.
+                var dir = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
+                var filename = DateTime.Now.ToString("yyyymmdd_hhmmss") + ".jpg";
+                var filepath = System.IO.Path.Combine(dir, filename);
+                using (var writer = new BinaryWriter(new FileStream(filepath, FileMode.Create, FileAccess.ReadWrite)))
+                {
+                    writer.Write(data);
+                }
             }
         }
 

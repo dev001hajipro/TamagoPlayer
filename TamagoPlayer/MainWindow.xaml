@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:TamagoPlayer"
         mc:Ignorable="d"
         Title="たまごプレイヤー" MinHeight="480" MinWidth="640" Background="AliceBlue"
-        SizeToContent="WidthAndHeight">
+        SizeToContent="WidthAndHeight" KeyDown="OnKeyDown">
     <Grid x:Name="contentGrid" AllowDrop="True" Background="Transparent" Drop="OnDrop" DragEnter="OnDragEnter" MouseDown="OnMouseDown">
         <MediaElement x:Name="player" HorizontalAlignment="Left" VerticalAlignment="Top" LoadedBehavior="Manual" Stretch="Uniform" MediaOpened="OnMediaOpened"/>
     </Grid>
